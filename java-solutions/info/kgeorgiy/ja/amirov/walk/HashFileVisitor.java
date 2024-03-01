@@ -37,6 +37,7 @@ public class HashFileVisitor extends SimpleFileVisitor<Path> {
             hash = 0;
         }
 
+// :NOTE: IOExpcetion Отсюда?
         writer.write(String.format("%08x %s%n", hash, filePath));
 
         return FileVisitResult.CONTINUE;

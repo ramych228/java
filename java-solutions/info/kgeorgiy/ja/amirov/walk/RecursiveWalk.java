@@ -37,10 +37,12 @@ public class RecursiveWalk {
         }
     }
 
+    // :NOTE: модификатор доступа
+    // :NOTE:  throws Exception
     static Path validatePath(String path) throws Exception {
         try {
-            return Paths.get(path);
-        } catch (FileSystemNotFoundException | InvalidPathException exception) {
+            return Path.of(path);
+        } catch (InvalidPathException exception) {
             throw new Exception(String.format("Invalid path to file %s.%nProgram finished with exception: %s%n", path, exception.getMessage()));
         }
     }
