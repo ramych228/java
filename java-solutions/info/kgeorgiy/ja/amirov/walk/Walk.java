@@ -14,8 +14,8 @@ public class Walk {
         if (outputFile.getParent() != null) {
             try {
                 Files.createDirectories(outputFile.getParent());
-            } catch (IOException ioe) {
-                throw new WalkException(ioe.getMessage());
+            } catch (IOException ignore) {
+//                throw new WalkException(ioe.getMessage());
             }
         }
 

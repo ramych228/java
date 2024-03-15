@@ -40,6 +40,7 @@ public class HashFileVisitor extends SimpleFileVisitor<Path> {
         try {
             writer.write(String.format("%08x %s%n", hash, filePath));
         } catch (IOException ioe) {
+            // :NOTE: throw WalkException
             System.err.format("IOException in output file: %s%n", ioe.getMessage());
         }
 
