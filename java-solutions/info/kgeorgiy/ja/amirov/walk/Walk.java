@@ -3,42 +3,37 @@ package info.kgeorgiy.ja.amirov.walk;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.nio.file.FileSystemNotFoundException;
-import java.nio.file.FileVisitOption;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.EnumSet;
+import java.nio.file.*;
 import java.util.Set;
 
 public class Walk {
-    // :NOTE: аргумент глубина
-    // :NOTE: throws Exception
-    // :NOTE: библиотечная реализация -> свои исключение
-    private static void walk(final String input, final String output) throws Exception {
-        Path inputFile = RecursiveWalk.validatePath(input);
-        Path outputFile = RecursiveWalk.validatePath(output);
+    public static void walk(final String input, final String output, final int depth) throws WalkException {
+        Path inputFile = validatePath(input);
+        Path outputFile = validatePath(output);
 
         if (outputFile.getParent() != null) {
-            Files.createDirectories(outputFile.getParent());
-            // :NOTE: надо
+            try {
+                Files.createDirectories(outputFile.getParent());
+            } catch (IOException ioe) {
+                throw new WalkException(ioe.getMessage());
+            }
         }
 
         try (BufferedReader bufferedReader = Files.newBufferedReader(inputFile)) {
             try (BufferedWriter bufferedWriter = Files.newBufferedWriter(outputFile)) {
                 HashFileVisitor hashFileVisitor = new HashFileVisitor(bufferedWriter);
                 String currentFilePath;
-                while ((currentFilePath = bufferedReader.readLine()) != null) { // :NOTE:  IOException in output file:
+                while ((currentFilePath = bufferedReader.readLine()) != null) {
                     try {
-                        Path validatedCurrentFilePath = RecursiveWalk.validatePath(currentFilePath);
-                        Files.walkFileTree(validatedCurrentFilePath, Set.of(), 0, hashFileVisitor);
+                        Path validatedCurrentFilePath = validatePath(currentFilePath);
+                        Files.walkFileTree(validatedCurrentFilePath, Set.of(), depth, hashFileVisitor);
                     } catch (FileSystemNotFoundException | SecurityException e) {
                         System.err.format("File %s is not found.%n%s%n", currentFilePath, e.getMessage());
-                    } catch (Exception e) { // :NOTE: Exception
-                         bufferedWriter.write(String.format("%08x %s%n", 0, currentFilePath));
+                    } catch (WalkException e) {
+                        bufferedWriter.write(String.format("%08x %s%n", 0, currentFilePath));
                     }
                 }
             } catch (IOException ioe) {
-//                throw ioe;
                 System.err.format("IOException in output file: %s%n", ioe.getMessage());
             }
         } catch (IOException ioe) {
@@ -46,16 +41,22 @@ public class Walk {
         }
     }
 
-    // :NOTE: IOException => Failed to ...
+    public static Path validatePath(String path) throws WalkException {
+        try {
+            return Path.of(path);
+        } catch (InvalidPathException exception) {
+            throw new WalkException(String.format("Invalid path to file %s.%nProgram finished with exception: %s%n", path, exception.getMessage()));
+        }
+    }
 
     public static void main(String[] args) {
         if (args == null || args.length != 2 || args[0] == null || args[1] == null) {
             System.err.println("Wrong args");
         } else {
             try {
-                walk(args[0], args[1]);
-            } catch (Exception e) {
-                System.err.println(e.getMessage());
+                walk(args[0], args[1], 0);
+            } catch (WalkException we) {
+                System.err.println(we.getMessage());
             }
         }
     }

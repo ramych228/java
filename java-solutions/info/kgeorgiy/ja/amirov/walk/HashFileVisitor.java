@@ -37,8 +37,12 @@ public class HashFileVisitor extends SimpleFileVisitor<Path> {
             hash = 0;
         }
 
-// :NOTE: IOExpcetion Отсюда?
-        writer.write(String.format("%08x %s%n", hash, filePath));
+        try {
+            writer.write(String.format("%08x %s%n", hash, filePath));
+        } catch (IOException ioe) {
+            System.err.format("IOException in output file: %s%n", ioe.getMessage());
+        }
+
 
         return FileVisitResult.CONTINUE;
     }

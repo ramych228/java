@@ -4,7 +4,7 @@ import java.util.*;
 
 public class ArraySet<T extends Comparable<T>> extends AbstractSet<T> implements NavigableSet<T> {
 
-    private ReverseList<T> rl;
+    private final ReverseList<T> rl;
     private final Comparator<? super T> cmp;
 
     public ArraySet() {
@@ -23,6 +23,11 @@ public class ArraySet<T extends Comparable<T>> extends AbstractSet<T> implements
         TreeSet<T> ts = new TreeSet<>(cmp);
         ts.addAll(Objects.requireNonNull(collection));
         this.rl = new ReverseList<>(ts);
+        this.cmp = cmp;
+    }
+
+    private ArraySet(ReverseList<T> rlOld, Comparator<? super T> cmp) {
+        this.rl = rlOld;
         this.cmp = cmp;
     }
 
@@ -120,7 +125,7 @@ public class ArraySet<T extends Comparable<T>> extends AbstractSet<T> implements
 
     @Override
     public NavigableSet<T> subSet(T fromElement, boolean fromInclusive, T toElement, boolean toInclusive) throws IllegalArgumentException {
-        if(compare(fromElement, toElement) > 0) {
+        if(rl.isReversed == compare(fromElement, toElement) > 0) {
             throw new IllegalArgumentException();
         }
         return subSetUnchecked(fromElement, fromInclusive, toElement, toInclusive);
@@ -131,11 +136,14 @@ public class ArraySet<T extends Comparable<T>> extends AbstractSet<T> implements
         int left = lowerIndexBound(fromElement, false, fromInclusive);
         int right = lowerIndexBound(toElement, true, toInclusive);
 
+//        if (left == -1 || right == -1) {
+//            return new ArraySet<>(new ReverseList<T>(), this.cmp);
+//        }
         if (left > right) {
-            return new ArraySet<>(new ReverseList<T>(), this.cmp);
+            right++;
         }
 
-        return new ArraySet<>(this.rl.subList(left, right + 1), this.cmp);
+        return new ArraySet<>(this.rl.subList(left, right), this.cmp);
     }
 
     @Override

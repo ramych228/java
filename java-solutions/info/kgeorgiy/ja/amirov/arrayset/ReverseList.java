@@ -1,12 +1,11 @@
 package info.kgeorgiy.ja.amirov.arrayset;
 
 import java.util.*;
-import static java.util.Collections.emptyList;
 
-public class ReverseList<T> extends AbstractList<T> {
+public class ReverseList<T> extends AbstractList<T> implements RandomAccess {
 
     private final List<T> list;
-    private boolean isReversed = false;
+    boolean isReversed = false;
 
     public ReverseList(Collection<T> collection) {
         this.list = List.copyOf(collection);
@@ -18,7 +17,7 @@ public class ReverseList<T> extends AbstractList<T> {
     }
 
     public ReverseList() {
-        this.list = emptyList();
+        this.list = Collections.emptyList();
     }
 
     private int reversedIndex(int index) {
@@ -27,11 +26,7 @@ public class ReverseList<T> extends AbstractList<T> {
 
     @Override
     public ReverseList<T> subList(int from, int to) {
-        if (isReversed) {
-            return new ReverseList<>(list.subList(reversedIndex(to - 1), reversedIndex(to) + 1));
-        } else {
-            return new ReverseList<>(list.subList(from, to));
-        }
+        return new ReverseList<>(list.subList(from, to));
     }
 
     @Override
