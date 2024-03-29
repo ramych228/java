@@ -128,11 +128,11 @@ public class StudentDB implements GroupQuery{
             final Comparator<GroupName> keyComparator) {
         return students
                 .stream()
-                .collect(Collectors.groupingBy(Student::getGroup))
+                .collect(Collectors.groupingBy(Student::getGroup)) // :NOTE: same
                 .entrySet()
                 .stream()
                 .max(Comparator.comparing((Map.Entry<GroupName, List<Student>> entry) -> mapper.apply(entry.getValue()))
-                        .thenComparing(Map.Entry::getKey, keyComparator))
+                        .thenComparing(Map.Entry::getKey, keyComparator)) // :NOTE: reuse comp
                 .map(Map.Entry::getKey)
                 .orElse(null);
     }
