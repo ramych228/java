@@ -139,11 +139,11 @@ public class ArraySet<T extends Comparable<T>> extends AbstractSet<T> implements
 //        if (left == -1 || right == -1) {
 //            return new ArraySet<>(new ReverseList<T>(), this.cmp);
 //        }
-        if (left > right) {
-            right++;
-        }
+//        if (left > right) {
+//            right++;
+//        }
 
-        return new ArraySet<>(this.rl.subList(left, right), this.cmp);
+        return new ArraySet<>(this.rl.subList(left, right + 1), this.cmp);
     }
 
     @Override
@@ -151,8 +151,11 @@ public class ArraySet<T extends Comparable<T>> extends AbstractSet<T> implements
         if (this.rl.isEmpty()) {
             return new ArraySet<>(new ReverseList<T>(), this.cmp);
         }
-
-        return subSetUnchecked(first(), true, toElement, inclusive);
+        if(compare(first(), toElement) > 0) {
+            return subSet(first(), true, toElement, inclusive);
+        } else {
+            return subSet(toElement, true, first(), inclusive);
+        }
     }
 
     @Override
@@ -161,7 +164,11 @@ public class ArraySet<T extends Comparable<T>> extends AbstractSet<T> implements
             return new ArraySet<>(new ReverseList<T>(), this.cmp);
         }
 
-        return subSetUnchecked(fromElement, inclusive, last(), true);
+        if(compare(last(), fromElement) < 0) {
+            return subSetUnchecked(fromElement, inclusive, last(), true);
+        } else {
+            return subSetUnchecked(last(), inclusive, fromElement, true);
+        }
     }
 
     @Override
